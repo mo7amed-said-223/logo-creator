@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shape Creator</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .shape-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .shape {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background-color: #000;
+        clip-path: none;
+      }
+      .circle {
+        border-radius: 50%;
+      }
+      .square {
+      }
+      .triangle {
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        border-bottom: 100px solid #000;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      }
+      .parallelogram {
+        width: 100px;
+        height: 50px;
+        background-color: #000;
+        transform: skew(-20deg);
+      }
+      .diamond {
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        border-bottom: 70px solid #000;
+        transform: rotate(45deg);
+      }
+      .hexagon {
+        width: 0;
+        height: 0;
+        border-left: 60px solid transparent;
+        border-right: 60px solid transparent;
+        border-bottom: 104px solid #000;
+        position: relative;
+        top: -35px;
+      }
+      .hexagon:before {
+        content: "";
+        position: absolute;
+        left: -60px;
+        top: -35px;
+        border-left: 60px solid transparent;
+        border-right: 60px solid transparent;
+        border-top: 52px solid #000;
+      }
+      @media print {
+        body * {
+          visibility: hidden; /* نخفي كل شيء في الصفحة عند الطباعة */
+        }
+        .shape-container,
+        .shape-container * {
+          visibility: visible; /* نعرض فقط عناصر الطباعة */
+        }
+        .shape-container {
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+        .shape-container .shape {
+          /* نضمن أن يكون الشكل بالحجم المطلوب في الطباعة */
+          margin: 0 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="my-4">
+        Shape Creator
+        <a href="./index.html" class="btn btn-primary">go to Example 1</a>
+      </h1>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="form-label" for="shapeSelect">Choose Shape:</label>
+            <select class="form-control" id="shapeSelect">
+              <option value="circle">Circle</option>
+              <option value="square">Square</option>
+              <option value="triangle">Triangle</option>
+              <option value="parallelogram">Parallelogram</option>
+              <option value="diamond">Diamond</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shapeColor">Shape Color:</label>
+            <input
+              type="color"
+              class="form-control"
+              id="shapeColor"
+              value="#000000"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shapeWidth">Shape Width (cm):</label>
+            <input
+              type="number"
+              class="form-control"
+              id="shapeWidth"
+              value="10"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shapeHeight"
+              >Shape Height (cm):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="shapeHeight"
+              value="10"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="imageInput">Upload Image:</label>
+            <input
+              type="file"
+              class="form-control"
+              id="imageInput"
+              accept="image/*"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="imageWidth">Image Width (cm):</label>
+            <input
+              type="number"
+              class="form-control"
+              id="imageWidth"
+              value="5"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="imageHeight"
+              >Image Height (cm):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="imageHeight"
+              value="5"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="imageX"
+              >Image X Position (cm):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="imageX"
+              value="0"
+              step="0.1"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="imageY"
+              >Image Y Position (cm):</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="imageY"
+              value="0"
+              step="0.1"
+            />
+          </div>
+          <button class="btn btn-primary" id="printButton">Print</button>
+        </div>
+        <div class="col-md-6">
+          <div class="shape-container">
+            <div class="shape" id="shape"></div>
+            <img id="image" style="display: none; position: absolute" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const shapeSelect = document.getElementById("shapeSelect");
+      const shapeColor = document.getElementById("shapeColor");
+      const shapeWidth = document.getElementById("shapeWidth");
+      const shapeHeight = document.getElementById("shapeHeight");
+      const imageInput = document.getElementById("imageInput");
+      const imageWidth = document.getElementById("imageWidth");
+      const imageHeight = document.getElementById("imageHeight");
+      const imageX = document.getElementById("imageX");
+      const imageY = document.getElementById("imageY");
+      const shape = document.getElementById("shape");
+      const image = document.getElementById("image");
+
+      function updateShape() {
+        const shapeType = shapeSelect.value;
+        shape.className = `shape ${shapeType}`;
+        shape.style.backgroundColor = shapeColor.value;
+        shape.style.width = `${shapeWidth.value}cm`;
+        shape.style.height = `${shapeHeight.value}cm`;
+
+        if (shapeType === "triangle") {
+          shape.style.borderBottomColor = shapeColor.value;
+        } else if (shapeType === "parallelogram") {
+          shape.style.backgroundColor = shapeColor.value;
+        } else if (shapeType === "diamond") {
+          shape.style.borderBottomColor = shapeColor.value;
+        } else if (shapeType === "hexagon") {
+          shape.style.backgroundColor = shapeColor.value;
+        } else {
+          shape.style.backgroundColor = shapeColor.value;
+        }
+
+        if (image.src) {
+          image.style.width = `${imageWidth.value}cm`;
+          image.style.height = `${imageHeight.value}cm`;
+          image.style.left = `${
+            parseFloat(shapeWidth.value) * 0.5 -
+            parseFloat(imageWidth.value) * 0.5 +
+            parseFloat(imageX.value)
+          }cm`;
+          image.style.top = `${
+            parseFloat(shapeHeight.value) * 0.5 -
+            parseFloat(imageHeight.value) * 0.5 +
+            parseFloat(imageY.value)
+          }cm`;
+        }
+      }
+
+      shapeSelect.addEventListener("change", updateShape);
+      shapeColor.addEventListener("input", updateShape);
+      shapeWidth.addEventListener("input", updateShape);
+      shapeHeight.addEventListener("input", updateShape);
+      imageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            image.src = event.target.result;
+            image.style.display = "block";
+            updateShape();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      imageWidth.addEventListener("input", updateShape);
+      imageHeight.addEventListener("input", updateShape);
+      imageX.addEventListener("input", updateShape);
+      imageY.addEventListener("input", updateShape);
+
+      const printShape = document.querySelector(".shape-container #shape");
+      const printImage = document.querySelector(".shape-container #image");
+      console.log(printImage);
+      console.log(printShape);
+      console.log(image.src);
+
+      document.getElementById("printButton").addEventListener("click", () => {
+        // قبل الطباعة، نحدّث عناصر الطباعة بنفس قيم العناصر الأصلية
+        printShape.className = shape.className + " print-shape";
+        printShape.style.backgroundColor = shape.style.backgroundColor;
+        printShape.style.width = shape.style.width;
+        printShape.style.height = shape.style.height;
+        if (shape.style.borderBottomColor) {
+          printShape.style.borderBottomColor = shape.style.borderBottomColor;
+        }
+
+        printImage.src = image.src;
+
+        if (image.src) {
+          printImage.style.display = "block";
+          printImage.style.width = image.style.width;
+          printImage.style.height = image.style.height;
+          printImage.style.left = image.style.left;
+          printImage.style.top = image.style.top;
+        } else {
+          printImage.style.display = "none";
+        }
+
+        window.print();
+      });
+    </script>
+  </body>
+</html>

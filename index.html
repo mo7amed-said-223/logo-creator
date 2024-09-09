@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Overlay with Controls</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #image-container {
+        position: relative;
+        display: inline-block;
+        margin-top: 20px;
+        max-width: 100%;
+        max-height: 80vh;
+      }
+      #background-image,
+      #logo-image {
+        display: none;
+        max-width: 100%;
+        max-height: 100%;
+      }
+      #logo-image {
+        position: absolute;
+        z-index: 1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+          display: none;
+        }
+        #image-container,
+        .container,
+        #image-container * {
+          visibility: visible;
+          display: block !important;
+        }
+
+        body {
+          margin: 0;
+          padding: 0;
+        }
+
+        .container {
+          width: 100%;
+          height: 100%;
+          position: relative;
+        }
+
+        .background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: auto;
+        }
+
+        .logo {
+          position: absolute;
+          top: var(--logo-top);
+          left: var(--logo-left);
+          width: var(--logo-width);
+          height: var(--logo-height);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container mt-4">
+      <h1 class="text-center mb-4">
+        Upload and Customize Images
+        <a href="./index3.html" class="btn btn-primary">go to Example 2</a>
+      </h1>
+      <div class="text-center my-4">
+        <button id="print-button" class="btn btn-primary">Print Images</button>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <label for="background-input" class="form-label"
+            >Upload Background Image</label
+          >
+          <input
+            type="file"
+            id="background-input"
+            accept="image/*"
+            class="form-control mb-3"
+          />
+          <div class="row mb-3">
+            <div class="col">
+              <label for="bg-width" class="form-label"
+                >Background Width (cm)</label
+              >
+              <input
+                type="number"
+                id="bg-width"
+                class="form-control"
+                placeholder="Enter width in cm"
+              />
+            </div>
+            <div class="col">
+              <label for="bg-height" class="form-label"
+                >Background Height (cm)</label
+              >
+              <input
+                type="number"
+                id="bg-height"
+                class="form-control"
+                placeholder="Enter height in cm"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="logo-input" class="form-label">Upload Logo Image</label>
+          <input
+            type="file"
+            id="logo-input"
+            accept="image/*"
+            class="form-control mb-3"
+          />
+          <div class="row mb-3">
+            <div class="col">
+              <label for="logo-width" class="form-label">Logo Width (cm)</label>
+              <input
+                type="number"
+                id="logo-width"
+                class="form-control"
+                placeholder="Enter width in cm"
+              />
+            </div>
+            <div class="col">
+              <label for="logo-height" class="form-label"
+                >Logo Height (cm)</label
+              >
+              <input
+                type="number"
+                id="logo-height"
+                class="form-control"
+                placeholder="Enter height in cm"
+              />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="logo-top" class="form-label"
+                >Logo Top Offset (cm)</label
+              >
+              <input
+                type="number"
+                step="0.1"
+                id="logo-top"
+                class="form-control"
+                placeholder="Enter top offset in cm"
+              />
+            </div>
+            <div class="col">
+              <label for="logo-left" class="form-label"
+                >Logo Left Offset (cm)</label
+              >
+              <input
+                type="number"
+                step="0.1"
+                id="logo-left"
+                class="form-control"
+                placeholder="Enter left offset in cm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="image-container" class="text-center">
+        <img id="background-image" alt="Background" />
+        <img id="logo-image" alt="Logo" />
+      </div>
+    </div>
+
+    <script>
+      // Event listener for background image upload
+      document
+        .getElementById("background-input")
+        .addEventListener("change", function (event) {
+          const backgroundImage = document.getElementById("background-image");
+          const file = event.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            backgroundImage.src = e.target.result;
+            backgroundImage.style.display = "block";
+          };
+
+          if (file) {
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Event listener for logo image upload
+      document
+        .getElementById("logo-input")
+        .addEventListener("change", function (event) {
+          const logoImage = document.getElementById("logo-image");
+          const file = event.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            logoImage.src = e.target.result;
+            logoImage.style.display = "block";
+          };
+
+          if (file) {
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Function to update background image size in cm
+      document
+        .getElementById("bg-width")
+        .addEventListener("input", function () {
+          document.getElementById("background-image").style.width =
+            this.value + "cm";
+        });
+
+      document
+        .getElementById("bg-height")
+        .addEventListener("input", function () {
+          document.getElementById("background-image").style.height =
+            this.value + "cm";
+        });
+      function updateCSSVariable(variable, value) {
+        document.documentElement.style.setProperty(variable, value);
+      }
+      // Function to update logo image size in cm
+      document
+        .getElementById("logo-width")
+        .addEventListener("input", function () {
+          updateCSSVariable("--logo-width", this.value + "cm");
+
+          document.getElementById("logo-image").style.width = this.value + "cm";
+        });
+
+      document
+        .getElementById("logo-height")
+        .addEventListener("input", function () {
+          updateCSSVariable("--logo-height", this.value + "cm");
+
+          document.getElementById("logo-image").style.height =
+            this.value + "cm";
+        });
+
+      // Function to update logo position
+      document
+        .getElementById("logo-top")
+        .addEventListener("input", function () {
+          updateCSSVariable("--logo-top", this.value + "cm");
+
+          document.getElementById(
+            "logo-image"
+          ).style.top = `calc(50% + ${this.value}cm)`;
+        });
+
+      document
+        .getElementById("logo-left")
+        .addEventListener("input", function () {
+          updateCSSVariable("--logo-left", this.value + "cm");
+
+          document.getElementById(
+            "logo-image"
+          ).style.left = `calc(50% + ${this.value}cm)`;
+        });
+
+      // Print function
+      document
+        .getElementById("print-button")
+        .addEventListener("click", function () {
+          window.print();
+        });
+    </script>
+  </body>
+</html>
